@@ -88,8 +88,9 @@ export default function App() {
   // Toggle game mode
   const toggleGameMode = (mode: GameMode) => {
     if (mode !== gameMode) {
-      setGameMode(mode);
+      // Reset first, then change mode to avoid state conflicts
       handleReset();
+      setGameMode(mode);
     }
   };
 

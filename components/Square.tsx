@@ -10,13 +10,16 @@ interface SquareProps {
 }
 
 export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
-  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const bgColorAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnimRef = useRef<Animated.CompositeAnimation | null>(null);
 
-  // Animate when value appears
+  // Pop-in animation when value appears
   useEffect(() => {
     if (value) {
+      // Start from 0 and spring to 1
+      scaleAnim.setValue(0);
       Animated.spring(scaleAnim, {
         toValue: 1,
         friction: 3,
@@ -24,11 +27,12 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
         useNativeDriver: true,
       }).start();
     } else {
-      scaleAnim.setValue(0);
+      // Reset to normal size when cleared
+      scaleAnim.setValue(1);
     }
   }, [value]);
 
-  // Animate winning squares
+  // Winning square animations
   useEffect(() => {
     if (isWinning) {
       // Background color animation
@@ -39,7 +43,7 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
       }).start();
 
       // Pulse animation for winning squares
-      Animated.loop(
+      pulseAnimRef.current = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
             toValue: 1.15,
@@ -52,11 +56,25 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
             useNativeDriver: true,
           }),
         ])
-      ).start();
+      );
+      pulseAnimRef.current.start();
     } else {
+      // Stop and reset pulse animation
+      if (pulseAnimRef.current) {
+        pulseAnimRef.current.stop();
+        pulseAnimRef.current = null;
+      }
       bgColorAnim.setValue(0);
       pulseAnim.setValue(1);
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (pulseAnimRef.current) {
+        pulseAnimRef.current.stop();
+        pulseAnimRef.current = null;
+      }
+    };
   }, [isWinning]);
 
   const backgroundColor = bgColorAnim.interpolate({
