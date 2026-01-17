@@ -9,6 +9,8 @@ interface TurnIndicatorProps {
   winner: Player | null;
   isDraw: boolean;
   gameMode: 'pvp' | 'ai';
+  playerXName: string;
+  playerOName: string;
 }
 
 const XIcon = ({ size = 24, color }: { size?: number; color: string }) => (
@@ -42,12 +44,18 @@ export function TurnIndicator({
   winner,
   isDraw,
   gameMode,
+  playerXName,
+  playerOName,
 }: TurnIndicatorProps) {
   const theme = useTheme();
 
+  const getPlayerName = (player: Player) => {
+    return player === 'X' ? playerXName : playerOName;
+  };
+
   const getMessage = () => {
     if (winner) {
-      return `${winner} Wins!`;
+      return `${getPlayerName(winner)} Wins!`;
     }
     if (isDraw) {
       return "It's a Draw!";
@@ -55,7 +63,7 @@ export function TurnIndicator({
     if (gameMode === 'ai' && currentPlayer === 'O') {
       return 'AI is thinking...';
     }
-    return `${currentPlayer}'s Turn`;
+    return `${getPlayerName(currentPlayer)}'s Turn`;
   };
 
   const getBackgroundColor = () => {

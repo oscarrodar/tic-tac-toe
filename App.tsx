@@ -12,6 +12,7 @@ import { Board } from './components/Board';
 import { TurnIndicator } from './components/TurnIndicator';
 import { ModeToggle } from './components/ModeToggle';
 import { DifficultySelector } from './components/DifficultySelector';
+import { PlayerNames } from './components/PlayerNames';
 import { checkWinner } from './utils/checkWinner';
 import { getBestMove } from './utils/getBestMove';
 import { Board as BoardType, Player, GameMode, WinningLine, AIDifficulty } from './types';
@@ -28,6 +29,8 @@ export default function App() {
   const [winner, setWinner] = useState<Player | null>(null);
   const [winningLine, setWinningLine] = useState<WinningLine>(null);
   const [isDraw, setIsDraw] = useState(false);
+  const [playerXName, setPlayerXName] = useState('X');
+  const [playerOName, setPlayerOName] = useState('O');
 
   // Check for winner after each move
   useEffect(() => {
@@ -119,9 +122,17 @@ export default function App() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.content}>
-        {/* Title */}
+        {/* Player Names */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>Tic Tac Toe</Text>
+          <PlayerNames
+            playerXName={playerXName}
+            playerOName={playerOName}
+            onPlayerXNameChange={setPlayerXName}
+            onPlayerONameChange={setPlayerOName}
+            currentPlayer={currentPlayer}
+            winner={winner}
+            isDraw={isDraw}
+          />
         </View>
 
         {/* Center Section: Turn Indicator and Board */}
@@ -131,6 +142,8 @@ export default function App() {
             winner={winner}
             isDraw={isDraw}
             gameMode={gameMode}
+            playerXName={playerXName}
+            playerOName={playerOName}
           />
 
           <Board
@@ -176,16 +189,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 10,
     paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
-    paddingVertical: 10,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    paddingVertical: 8,
   },
   gameSection: {
     flex: 1,
