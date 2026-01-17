@@ -5,21 +5,11 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
-  LayoutAnimation,
-  Platform,
-  UIManager,
 } from 'react-native';
 import { Board } from './components/Board';
 import { checkWinner } from './utils/checkWinner';
 import { getBestMove } from './utils/getBestMove';
 import { Board as BoardType, Player, GameMode, WinningLine } from './types';
-
-// Enable LayoutAnimation on Android
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
 
 export default function App() {
   // Game state
@@ -75,9 +65,6 @@ export default function App() {
 
   // Reset game
   const handleReset = () => {
-    // Animate the reset
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
     setBoard(Array(9).fill(null));
     setCurrentPlayer('X');
     setWinner(null);
@@ -88,8 +75,12 @@ export default function App() {
   // Toggle game mode
   const toggleGameMode = (mode: GameMode) => {
     if (mode !== gameMode) {
-      // Reset first, then change mode to avoid state conflicts
-      handleReset();
+      // Reset all state immediately before changing mode
+      setBoard(Array(9).fill(null));
+      setCurrentPlayer('X');
+      setWinner(null);
+      setWinningLine(null);
+      setIsDraw(false);
       setGameMode(mode);
     }
   };

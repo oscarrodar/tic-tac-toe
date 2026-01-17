@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { TouchableOpacity, Text, StyleSheet, Animated } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Animated, View } from 'react-native';
 import { Player } from '../types';
 
 interface SquareProps {
@@ -12,7 +12,6 @@ interface SquareProps {
 export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const bgColorAnim = useRef(new Animated.Value(0)).current;
   const pulseAnimRef = useRef<Animated.CompositeAnimation | null>(null);
 
   // Pop-in animation when value appears
@@ -32,21 +31,14 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
     }
   }, [value]);
 
-  // Winning square animations
+  // Pulse animation for winning X or O
   useEffect(() => {
-    if (isWinning) {
-      // Background color animation
-      Animated.timing(bgColorAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-
-      // Pulse animation for winning squares
+    if (isWinning && value) {
+      // Pulse the text when this square is part of winning line
       pulseAnimRef.current = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.15,
+            toValue: 1.2,
             duration: 500,
             useNativeDriver: true,
           }),
@@ -64,7 +56,6 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
         pulseAnimRef.current.stop();
         pulseAnimRef.current = null;
       }
-      bgColorAnim.setValue(0);
       pulseAnim.setValue(1);
     }
 
@@ -75,29 +66,27 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
         pulseAnimRef.current = null;
       }
     };
-  }, [isWinning]);
+  }, [isWinning, value]);
 
-  const backgroundColor = bgColorAnim.interpolate({
+  const combinedScale = scaleAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#fff', '#4ade80'],
+    outputRange: [0, 1],
   });
 
   return (
-    <Animated.View
-      style={[
-        styles.square,
-        {
-          backgroundColor,
-          transform: [{ scale: pulseAnim }],
-        },
-      ]}
-    >
+    <View style={[styles.square, isWinning && styles.squareWinning]}>
       <TouchableOpacity
         onPress={onPress}
         disabled={disabled || value !== null}
         style={styles.touchable}
       >
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Animated.View
+          style={{
+            transform: [
+              { scale: Animated.multiply(combinedScale, pulseAnim) },
+            ],
+          }}
+        >
           <Text
             style={[
               styles.text,
@@ -108,7 +97,7 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
           </Text>
         </Animated.View>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 }
 
@@ -120,8 +109,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#374151',
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  squareWinning: {
+    backgroundColor: '#4ade80',
   },
   touchable: {
     width: '100%',
