@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../theme';
-import { Player } from '../types';
+import { Player, GameMode } from '../types';
 
 interface PlayerNamesProps {
   playerXName: string;
@@ -12,6 +12,7 @@ interface PlayerNamesProps {
   currentPlayer: Player;
   winner: Player | null;
   isDraw: boolean;
+  gameMode: GameMode;
 }
 
 const XIcon = ({ size = 24, color }: { size?: number; color: string }) => (
@@ -53,6 +54,19 @@ const EditIcon = ({ size = 16, color }: { size?: number; color: string }) => (
   </Svg>
 );
 
+const RobotIcon = ({ size = 28, color }: { size?: number; color: string }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill="none"
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M12 8V5m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 19h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2zm3-6h.01M16 13h.01"
+    />
+  </Svg>
+);
+
 export function PlayerNames({
   playerXName,
   playerOName,
@@ -61,6 +75,7 @@ export function PlayerNames({
   currentPlayer,
   winner,
   isDraw,
+  gameMode,
 }: PlayerNamesProps) {
   const theme = useTheme();
   const [editingX, setEditingX] = useState(false);
@@ -73,6 +88,23 @@ export function PlayerNames({
   }, [currentPlayer]);
 
   const getPlayerStyle = (player: Player) => {
+  if (winner === player) {
+    return { backgroundColor: theme.winningBg, borderColor: theme.winningText };
+  }
+  if (isDraw) {
+    return { backgroundColor: theme.drawBg, borderColor: theme.drawText };
+  }
+  if (currentPlayer === player && !winner) { // Check if there's no winner
+    return {
+      backgroundColor: player === 'X' ? theme.xColor : theme.oColor,
+      borderColor: player === 'X' ? theme.xColor : theme.oColor,
+    };
+  }
+  return {
+    backgroundColor: 'transparent',
+    borderColor: theme.border,
+  };
+}
     if (winner === player) {
       return { backgroundColor: theme.winningBg, borderColor: theme.winningText };
     }
@@ -92,6 +124,17 @@ export function PlayerNames({
   };
 
   const getTextColor = (player: Player) => {
+  if (winner === player) {
+    return theme.winningText;
+  }
+  if (isDraw) {
+    return theme.drawText;
+  }
+  if (currentPlayer === player && !winner) { // Check if there's no winner
+    return '#ffffff';
+  }
+  return theme.text;
+}
     if (winner === player) {
       return theme.winningText;
     }
@@ -112,16 +155,23 @@ export function PlayerNames({
     onNameChange: (name: string) => void
   ) => {
     const iconColor = getTextColor(player);
+    const isAIPlayer = player === 'O' && gameMode === 'ai';
+
+    const getIcon = () => {
+      if (player === 'X') {
+        return <XIcon size={28} color={iconColor} />;
+      }
+      if (isAIPlayer) {
+        return <RobotIcon size={28} color={iconColor} />;
+      }
+      return <CircleIcon size={28} color={iconColor} />;
+    };
 
     return (
       <View style={[styles.playerContainer, getPlayerStyle(player)]}>
         <View style={styles.playerContent}>
-          {player === 'X' ? (
-            <XIcon size={28} color={iconColor} />
-          ) : (
-            <CircleIcon size={28} color={iconColor} />
-          )}
-          {isEditing ? (
+          {getIcon()}
+          {isEditing && !isAIPlayer ? (
             <TextInput
               style={[
                 styles.input,
@@ -139,6 +189,10 @@ export function PlayerNames({
               placeholderTextColor={theme.textSecondary}
               accessibilityLabel={`Edit player ${player} name`}
             />
+          ) : isAIPlayer ? (
+            <Text style={[styles.playerName, { color: getTextColor(player) }]}>
+              {name}
+            </Text>
           ) : (
             <TouchableOpacity
               style={styles.nameButton}

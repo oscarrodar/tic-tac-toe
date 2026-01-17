@@ -30,6 +30,7 @@ export default function App() {
   const [isDraw, setIsDraw] = useState(false);
   const [playerXName, setPlayerXName] = useState('X');
   const [playerOName, setPlayerOName] = useState('O');
+  const [savedPlayerOName, setSavedPlayerOName] = useState('O');
 
   // Check for winner after each move
   useEffect(() => {
@@ -103,6 +104,17 @@ export default function App() {
       setWinningLine(null);
       setIsDraw(false);
       setGameMode(mode);
+
+      // Handle player O name based on mode
+      if (mode === 'ai') {
+        // Save current player O name before switching to AI mode
+        setSavedPlayerOName(playerOName);
+        setPlayerOName('AI');
+      } else {
+        // Restore saved player O name when switching back to PvP
+        setPlayerOName(savedPlayerOName);
+      }
+
       const modeName = mode === 'pvp' ? 'Player versus Player' : 'Player versus AI';
       AccessibilityInfo.announceForAccessibility(`Switched to ${modeName} mode`);
     }
@@ -130,6 +142,7 @@ export default function App() {
           currentPlayer={currentPlayer}
           winner={winner}
           isDraw={isDraw}
+          gameMode={gameMode}
         />
 
         {/* Game Board */}
