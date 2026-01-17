@@ -87,13 +87,8 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
             ],
           }}
         >
-          <Text
-            style={[
-              styles.text,
-              value === 'X' ? styles.textX : styles.textO,
-            ]}
-          >
-            {value || ''}
+          <Text style={styles.text}>
+            {value === 'X' ? '❌' : value === 'O' ? '⭕' : ''}
           </Text>
         </Animated.View>
       </TouchableOpacity>
@@ -123,13 +118,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: 48,
-    fontWeight: 'bold',
-  },
-  textX: {
-    color: '#3b82f6', // Blue for X
-  },
-  textO: {
-    color: '#ef4444', // Red for O
+    fontSize: 60,
   },
 });
