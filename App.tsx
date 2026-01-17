@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Board } from './components/Board';
-import { TurnIndicator } from './components/TurnIndicator';
 import { ModeToggle } from './components/ModeToggle';
 import { DifficultySelector } from './components/DifficultySelector';
 import { PlayerNames } from './components/PlayerNames';
@@ -123,36 +122,23 @@ export default function App() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.content}>
         {/* Player Names */}
-        <View style={styles.header}>
-          <PlayerNames
-            playerXName={playerXName}
-            playerOName={playerOName}
-            onPlayerXNameChange={setPlayerXName}
-            onPlayerONameChange={setPlayerOName}
-            currentPlayer={currentPlayer}
-            winner={winner}
-            isDraw={isDraw}
-          />
-        </View>
+        <PlayerNames
+          playerXName={playerXName}
+          playerOName={playerOName}
+          onPlayerXNameChange={setPlayerXName}
+          onPlayerONameChange={setPlayerOName}
+          currentPlayer={currentPlayer}
+          winner={winner}
+          isDraw={isDraw}
+        />
 
-        {/* Center Section: Turn Indicator and Board */}
-        <View style={styles.gameSection}>
-          <TurnIndicator
-            currentPlayer={currentPlayer}
-            winner={winner}
-            isDraw={isDraw}
-            gameMode={gameMode}
-            playerXName={playerXName}
-            playerOName={playerOName}
-          />
-
-          <Board
-            board={board}
-            onSquarePress={handleSquarePress}
-            winningLine={winningLine}
-            disabled={isGameOver || (gameMode === 'ai' && currentPlayer === 'O')}
-          />
-        </View>
+        {/* Game Board */}
+        <Board
+          board={board}
+          onSquarePress={handleSquarePress}
+          winningLine={winningLine}
+          disabled={isGameOver || (gameMode === 'ai' && currentPlayer === 'O')}
+        />
 
         {/* Bottom Controls Section */}
         <View style={styles.controlsSection}>
@@ -188,23 +174,15 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  gameSection: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingTop: 20,
+    paddingBottom: 30,
   },
   controlsSection: {
     width: '100%',
     maxWidth: 400,
-    alignSelf: 'center',
+    gap: 16,
   },
   resetButton: {
     paddingVertical: 16,
