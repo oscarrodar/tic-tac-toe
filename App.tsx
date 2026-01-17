@@ -5,17 +5,26 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
+  AccessibilityInfo,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Board } from './components/Board';
+import { TurnIndicator } from './components/TurnIndicator';
+import { ModeToggle } from './components/ModeToggle';
+import { DifficultySelector } from './components/DifficultySelector';
 import { checkWinner } from './utils/checkWinner';
 import { getBestMove } from './utils/getBestMove';
-import { Board as BoardType, Player, GameMode, WinningLine } from './types';
+import { Board as BoardType, Player, GameMode, WinningLine, AIDifficulty } from './types';
+import { useTheme } from './theme';
 
 export default function App() {
+  const theme = useTheme();
+
   // Game state
   const [board, setBoard] = useState<BoardType>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
   const [gameMode, setGameMode] = useState<GameMode>('pvp');
+  const [aiDifficulty, setAIDifficulty] = useState<AIDifficulty>('medium');
   const [winner, setWinner] = useState<Player | null>(null);
   const [winningLine, setWinningLine] = useState<WinningLine>(null);
   const [isDraw, setIsDraw] = useState(false);
@@ -26,6 +35,13 @@ export default function App() {
     setWinner(result.winner);
     setWinningLine(result.winningLine);
     setIsDraw(result.isDraw);
+
+    // Announce game state changes for accessibility
+    if (result.winner) {
+      AccessibilityInfo.announceForAccessibility(`${result.winner} wins the game!`);
+    } else if (result.isDraw) {
+      AccessibilityInfo.announceForAccessibility('Game is a draw');
+    }
   }, [board]);
 
   // AI move trigger
@@ -37,7 +53,7 @@ export default function App() {
     if (gameMode === 'ai' && currentPlayer === 'O' && !winner && !isDraw) {
       // Small delay to make AI move feel more natural
       const timeout = setTimeout(() => {
-        const bestMove = getBestMove(board);
+        const bestMove = getBestMove(board, aiDifficulty);
         if (bestMove !== -1) {
           handleSquarePress(bestMove);
         }
@@ -45,7 +61,7 @@ export default function App() {
 
       return () => clearTimeout(timeout);
     }
-  }, [currentPlayer, gameMode, winner, isDraw]);
+  }, [currentPlayer, gameMode, winner, isDraw, aiDifficulty]);
 
   // Handle square press
   const handleSquarePress = (index: number) => {
@@ -65,16 +81,19 @@ export default function App() {
 
   // Reset game
   const handleReset = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setBoard(Array(9).fill(null));
     setCurrentPlayer('X');
     setWinner(null);
     setWinningLine(null);
     setIsDraw(false);
+    AccessibilityInfo.announceForAccessibility('Game reset');
   };
 
   // Toggle game mode
   const toggleGameMode = (mode: GameMode) => {
     if (mode !== gameMode) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       // Reset all state immediately before changing mode
       setBoard(Array(9).fill(null));
       setCurrentPlayer('X');
@@ -82,89 +101,68 @@ export default function App() {
       setWinningLine(null);
       setIsDraw(false);
       setGameMode(mode);
+      const modeName = mode === 'pvp' ? 'Player versus Player' : 'Player versus AI';
+      AccessibilityInfo.announceForAccessibility(`Switched to ${modeName} mode`);
     }
   };
 
-  // Get status message
-  const getStatusMessage = () => {
-    if (winner) {
-      return `${winner} Wins!`;
-    }
-    if (isDraw) {
-      return "It's a Draw!";
-    }
-    if (gameMode === 'ai' && currentPlayer === 'O') {
-      return 'AI is thinking...';
-    }
-    return `${currentPlayer}'s Turn`;
+  // Handle difficulty change
+  const handleDifficultyChange = (difficulty: AIDifficulty) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setAIDifficulty(difficulty);
+    AccessibilityInfo.announceForAccessibility(`AI difficulty set to ${difficulty}`);
   };
 
   // Check if game is over
   const isGameOver = winner !== null || isDraw;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.content}>
         {/* Title */}
-        <Text style={styles.title}>Tic Tac Toe</Text>
-
-        {/* Game Mode Selector */}
-        <View style={styles.modeSelector}>
-          <TouchableOpacity
-            style={[
-              styles.modeButton,
-              gameMode === 'pvp' && styles.modeButtonActive,
-            ]}
-            onPress={() => toggleGameMode('pvp')}
-          >
-            <Text
-              style={[
-                styles.modeButtonText,
-                gameMode === 'pvp' && styles.modeButtonTextActive,
-              ]}
-            >
-              Player vs Player
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.modeButton,
-              gameMode === 'ai' && styles.modeButtonActive,
-            ]}
-            onPress={() => toggleGameMode('ai')}
-          >
-            <Text
-              style={[
-                styles.modeButtonText,
-                gameMode === 'ai' && styles.modeButtonTextActive,
-              ]}
-            >
-              Player vs AI
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.text }]}>Tic Tac Toe</Text>
         </View>
 
-        {/* Status Message */}
-        <Text style={[
-          styles.status,
-          isGameOver && styles.statusGameOver,
-        ]}>
-          {getStatusMessage()}
-        </Text>
+        {/* Center Section: Turn Indicator and Board */}
+        <View style={styles.gameSection}>
+          <TurnIndicator
+            currentPlayer={currentPlayer}
+            winner={winner}
+            isDraw={isDraw}
+            gameMode={gameMode}
+          />
 
-        {/* Game Board */}
-        <Board
-          board={board}
-          onSquarePress={handleSquarePress}
-          winningLine={winningLine}
-          disabled={isGameOver || (gameMode === 'ai' && currentPlayer === 'O')}
-        />
+          <Board
+            board={board}
+            onSquarePress={handleSquarePress}
+            winningLine={winningLine}
+            disabled={isGameOver || (gameMode === 'ai' && currentPlayer === 'O')}
+          />
+        </View>
 
-        {/* Reset Button */}
-        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Text style={styles.resetButtonText}>Reset Game</Text>
-        </TouchableOpacity>
+        {/* Bottom Controls Section */}
+        <View style={styles.controlsSection}>
+          <ModeToggle gameMode={gameMode} onModeChange={toggleGameMode} />
+
+          {gameMode === 'ai' && (
+            <DifficultySelector
+              difficulty={aiDifficulty}
+              onDifficultyChange={handleDifficultyChange}
+            />
+          )}
+
+          <TouchableOpacity
+            style={[styles.resetButton, { backgroundColor: theme.primary }]}
+            onPress={handleReset}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Reset game"
+            accessibilityHint="Clears the board and starts a new game"
+          >
+            <Text style={styles.resetButtonText}>Reset Game</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -173,64 +171,42 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
   },
   content: {
     flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  header: {
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    paddingVertical: 10,
   },
   title: {
-    fontSize: 40,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#1f2937',
   },
-  modeSelector: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    gap: 10,
+  gameSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  modeButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-    backgroundColor: '#fff',
-  },
-  modeButtonActive: {
-    backgroundColor: '#3b82f6',
-  },
-  modeButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#3b82f6',
-  },
-  modeButtonTextActive: {
-    color: '#fff',
-  },
-  status: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 30,
-    color: '#374151',
-  },
-  statusGameOver: {
-    color: '#16a34a',
-    fontSize: 28,
+  controlsSection: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   resetButton: {
-    marginTop: 30,
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#3b82f6',
-    borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    alignItems: 'center',
+    minHeight: 48,
   },
   resetButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#ffffff',
   },
 });

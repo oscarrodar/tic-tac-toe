@@ -1,13 +1,46 @@
-import { Board } from '../types';
+import { Board, AIDifficulty } from '../types';
 import { minimax } from './minimax';
+
+/**
+ * Gets a random empty square index
+ */
+function getRandomMove(board: Board): number {
+  const emptySquares = board.reduce<number[]>((acc, square, index) => {
+    if (square === null) acc.push(index);
+    return acc;
+  }, []);
+
+  if (emptySquares.length === 0) return -1;
+  return emptySquares[Math.floor(Math.random() * emptySquares.length)];
+}
 
 /**
  * Finds the best move for the AI player using minimax algorithm
  *
  * @param board - Current board state
+ * @param difficulty - AI difficulty level ('easy', 'medium', 'hard')
  * @returns Index (0-8) of the best move
  */
-export function getBestMove(board: Board): number {
+export function getBestMove(board: Board, difficulty: AIDifficulty = 'medium'): number {
+  // Easy mode: 70% random moves, 30% smart moves
+  if (difficulty === 'easy') {
+    const shouldPlayRandom = Math.random() < 0.7;
+    if (shouldPlayRandom) {
+      return getRandomMove(board);
+    }
+    // Fall through to smart move
+  }
+
+  // Medium mode: 40% random moves, 60% smart moves
+  if (difficulty === 'medium') {
+    const shouldPlayRandom = Math.random() < 0.4;
+    if (shouldPlayRandom) {
+      return getRandomMove(board);
+    }
+    // Fall through to smart move
+  }
+
+  // Hard mode (and fallback for Easy/Medium): Use perfect minimax
   let bestScore = -Infinity;
   let bestMove = -1;
 

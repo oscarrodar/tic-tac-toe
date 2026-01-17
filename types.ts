@@ -9,6 +9,9 @@ export type Board = (Player | null)[];
 // Game mode: Player vs Player or Player vs AI
 export type GameMode = 'pvp' | 'ai';
 
+// AI difficulty levels
+export type AIDifficulty = 'easy' | 'medium' | 'hard';
+
 // Winning line is an array of 3 indices (0-8) or null if no winner
 export type WinningLine = number[] | null;
 

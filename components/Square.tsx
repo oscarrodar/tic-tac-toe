@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { TouchableOpacity, StyleSheet, Animated, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import * as Haptics from 'expo-haptics';
 import { Player } from '../types';
+import { useTheme } from '../theme';
 
 // SVG Components
 const XIcon = ({ size = 60, color = '#ef4444' }) => (
@@ -38,6 +40,7 @@ interface SquareProps {
 }
 
 export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
+  const theme = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const pulseAnimRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -45,6 +48,9 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
   // Pop-in animation when value appears
   useEffect(() => {
     if (value) {
+      // Trigger haptic feedback
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
       // Start from 0 and spring to 1
       scaleAnim.setValue(0);
       Animated.spring(scaleAnim, {
@@ -62,6 +68,9 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
   // Pulse animation for winning X or O
   useEffect(() => {
     if (isWinning && value) {
+      // Trigger success haptic for winning
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
       // Pulse the text when this square is part of winning line
       pulseAnimRef.current = Animated.loop(
         Animated.sequence([
@@ -102,21 +111,31 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
   });
 
   return (
-    <View style={[styles.square, isWinning && styles.squareWinning]}>
+    <View
+      style={[
+        styles.square,
+        { backgroundColor: theme.card, borderColor: theme.border },
+        isWinning && { backgroundColor: theme.winningBg },
+      ]}
+    >
       <TouchableOpacity
         onPress={onPress}
         disabled={disabled || value !== null}
         style={styles.touchable}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={
+          value ? `Square filled with ${value}` : 'Empty square'
+        }
+        accessibilityState={{ disabled: disabled || value !== null }}
       >
         <Animated.View
           style={{
-            transform: [
-              { scale: Animated.multiply(combinedScale, pulseAnim) },
-            ],
+            transform: [{ scale: Animated.multiply(combinedScale, pulseAnim) }],
           }}
         >
-          {value === 'X' && <XIcon size={70} color="#ef4444" />}
-          {value === 'O' && <CircleIcon size={70} color="#3b82f6" />}
+          {value === 'X' && <XIcon size={75} color={theme.xColor} />}
+          {value === 'O' && <CircleIcon size={75} color={theme.oColor} />}
         </Animated.View>
       </TouchableOpacity>
     </View>
@@ -125,18 +144,13 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
 
 const styles = StyleSheet.create({
   square: {
-    width: 100,
-    height: 100,
+    width: 110,
+    height: 110,
     margin: 5,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#374151',
-    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  squareWinning: {
-    backgroundColor: '#bbf7d0', // Pale/pastel green
   },
   touchable: {
     width: '100%',
