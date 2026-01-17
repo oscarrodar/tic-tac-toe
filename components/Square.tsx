@@ -1,6 +1,34 @@
 import React, { useEffect, useRef } from 'react';
-import { TouchableOpacity, Text, StyleSheet, Animated, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Animated, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { Player } from '../types';
+
+// SVG Components
+const XIcon = ({ size = 60, color = '#ef4444' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill="none"
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="4"
+      d="M6 6l12 12M18 6L6 18"
+    />
+  </Svg>
+);
+
+const CircleIcon = ({ size = 60, color = '#3b82f6' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill="none"
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="4"
+      d="M4 12a8 8 0 1 0 16 0a8 8 0 0 0-16 0"
+    />
+  </Svg>
+);
 
 interface SquareProps {
   value: Player | null;
@@ -87,9 +115,8 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
             ],
           }}
         >
-          <Text style={styles.text}>
-            {value === 'X' ? '❌' : value === 'O' ? '⭕' : ''}
-          </Text>
+          {value === 'X' && <XIcon size={70} color="#ef4444" />}
+          {value === 'O' && <CircleIcon size={70} color="#3b82f6" />}
         </Animated.View>
       </TouchableOpacity>
     </View>
@@ -109,15 +136,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   squareWinning: {
-    backgroundColor: '#4ade80',
+    backgroundColor: '#bbf7d0', // Pale/pastel green
   },
   touchable: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  text: {
-    fontSize: 60,
   },
 });
