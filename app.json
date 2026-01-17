@@ -27,7 +27,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "react-native-reanimated/plugin"
+      "expo-asset",
+      "expo-font"
     ]
   }
 }
