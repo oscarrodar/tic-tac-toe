@@ -88,23 +88,6 @@ export function PlayerNames({
   }, [currentPlayer]);
 
   const getPlayerStyle = (player: Player) => {
-  if (winner === player) {
-    return { backgroundColor: theme.winningBg, borderColor: theme.winningText };
-  }
-  if (isDraw) {
-    return { backgroundColor: theme.drawBg, borderColor: theme.drawText };
-  }
-  if (currentPlayer === player && !winner) { // Check if there's no winner
-    return {
-      backgroundColor: player === 'X' ? theme.xColor : theme.oColor,
-      borderColor: player === 'X' ? theme.xColor : theme.oColor,
-    };
-  }
-  return {
-    backgroundColor: 'transparent',
-    borderColor: theme.border,
-  };
-}
     if (winner === player) {
       return { backgroundColor: theme.winningBg, borderColor: theme.winningText };
     }
@@ -124,17 +107,6 @@ export function PlayerNames({
   };
 
   const getTextColor = (player: Player) => {
-  if (winner === player) {
-    return theme.winningText;
-  }
-  if (isDraw) {
-    return theme.drawText;
-  }
-  if (currentPlayer === player && !winner) { // Check if there's no winner
-    return '#ffffff';
-  }
-  return theme.text;
-}
     if (winner === player) {
       return theme.winningText;
     }
