@@ -179,6 +179,36 @@ The AI uses the **minimax algorithm**, a recursive decision-making algorithm tha
 
 **Result**: The AI is unbeatable. The best you can achieve is a draw!
 
+## Building an APK (Android)
+
+To build an APK for Android distribution:
+
+1. **Install EAS CLI globally:**
+   ```bash
+   npm install -g eas-cli
+   ```
+
+2. **Login to your Expo account:**
+   ```bash
+   eas login
+   ```
+
+3. **Configure EAS for your project:**
+   ```bash
+   eas build:configure
+   ```
+
+4. **Build the APK:**
+   ```bash
+   eas build -p android --profile preview
+   ```
+
+Or use the npm scripts:
+```bash
+npm run build:configure    # Configure EAS
+npm run build:android      # Build Android APK
+```
+
 ## Development Tips
 
 - **Hot Reload**: Changes to the code automatically reload in the Expo Go app
