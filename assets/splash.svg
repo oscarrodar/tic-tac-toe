@@ -1,0 +1,29 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background -->
+  <rect width="1284" height="2778" fill="#ffffff"/>
+
+  <!-- Centered icon (scaled to ~400px) -->
+  <g transform="translate(442, 1189)">
+    <!-- Top-left X -->
+    <g transform="translate(62, 62)">
+      <line x1="16" y1="16" x2="109" y2="109" stroke="#ef4444" stroke-width="22" stroke-linecap="round"/>
+      <line x1="109" y1="16" x2="16" y2="109" stroke="#ef4444" stroke-width="22" stroke-linecap="round"/>
+    </g>
+
+    <!-- Top-right O -->
+    <g transform="translate(212, 62)">
+      <circle cx="62" cy="62" r="47" fill="none" stroke="#3b82f6" stroke-width="22"/>
+    </g>
+
+    <!-- Bottom-left O -->
+    <g transform="translate(62, 212)">
+      <circle cx="62" cy="62" r="47" fill="none" stroke="#3b82f6" stroke-width="22"/>
+    </g>
+
+    <!-- Bottom-right X -->
+    <g transform="translate(212, 212)">
+      <line x1="16" y1="16" x2="109" y2="109" stroke="#ef4444" stroke-width="22" stroke-linecap="round"/>
+      <line x1="109" y1="16" x2="16" y2="109" stroke="#ef4444" stroke-width="22" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

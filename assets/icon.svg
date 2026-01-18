@@ -1,0 +1,26 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with rounded corners -->
+  <rect width="1024" height="1024" rx="180" ry="180" fill="#1f2937"/>
+
+  <!-- Top-left X -->
+  <g transform="translate(160, 160)">
+    <line x1="40" y1="40" x2="280" y2="280" stroke="#ef4444" stroke-width="56" stroke-linecap="round"/>
+    <line x1="280" y1="40" x2="40" y2="280" stroke="#ef4444" stroke-width="56" stroke-linecap="round"/>
+  </g>
+
+  <!-- Top-right O -->
+  <g transform="translate(544, 160)">
+    <circle cx="160" cy="160" r="120" fill="none" stroke="#3b82f6" stroke-width="56"/>
+  </g>
+
+  <!-- Bottom-left O -->
+  <g transform="translate(160, 544)">
+    <circle cx="160" cy="160" r="120" fill="none" stroke="#3b82f6" stroke-width="56"/>
+  </g>
+
+  <!-- Bottom-right X -->
+  <g transform="translate(544, 544)">
+    <line x1="40" y1="40" x2="280" y2="280" stroke="#ef4444" stroke-width="56" stroke-linecap="round"/>
+    <line x1="280" y1="40" x2="40" y2="280" stroke="#ef4444" stroke-width="56" stroke-linecap="round"/>
+  </g>
+</svg>
