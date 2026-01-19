@@ -79,7 +79,7 @@ export const GameModeCard: React.FC<GameModeCardProps> = ({
   onPress,
 }) => {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
   const iconColor = disabled ? theme.textSecondary : theme.textSecondary;
 
   const renderIcon = () => {

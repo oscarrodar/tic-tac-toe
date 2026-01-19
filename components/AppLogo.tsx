@@ -13,7 +13,7 @@ interface AppLogoProps {
 
 export const AppLogo: React.FC<AppLogoProps> = ({ size = 80 }) => {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
 
   // Based on the 1024x1024 adaptive-icon.svg scaled to size
   // Each cell is roughly 320x320 in the original, with 384 gap between cells

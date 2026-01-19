@@ -9,10 +9,10 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
-import { useTheme } from '../theme';
+import Svg, { Path, Line, Circle } from 'react-native-svg';
+import { useTheme, palettes } from '../theme';
 import { useSettingsContext } from '../contexts/SettingsContext';
-import { AIDifficulty, ThemePreference } from '../types';
+import { AIDifficulty, ThemePreference, ColorPalette } from '../types';
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -30,9 +30,32 @@ const BackIcon: React.FC<{ color: string }> = ({ color }) => (
   </Svg>
 );
 
+// Mini preview showing X and O colors for each palette
+const PalettePreview: React.FC<{ xColor: string; oColor: string; size?: number }> = ({
+  xColor,
+  oColor,
+  size = 20,
+}) => (
+  <View style={{ flexDirection: 'row', gap: 6 }}>
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Line x1="6" y1="6" x2="18" y2="18" stroke={xColor} strokeWidth={4} strokeLinecap="round" />
+      <Line x1="18" y1="6" x2="6" y2="18" stroke={xColor} strokeWidth={4} strokeLinecap="round" />
+    </Svg>
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx="12" cy="12" r="7" fill="none" stroke={oColor} strokeWidth={4} />
+    </Svg>
+  </View>
+);
+
+const PALETTE_OPTIONS: { value: ColorPalette; label: string; description: string }[] = [
+  { value: 'earth', label: 'Earth', description: 'Terracotta & Teal' },
+  { value: 'sunset', label: 'Sunset', description: 'Coral & Amber' },
+  { value: 'modern', label: 'Modern', description: 'Burgundy & Indigo' },
+];
+
 export function SettingsScreen({ onBack }: SettingsScreenProps) {
   const { settings, updateSetting } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
 
   const renderToggle = (
     label: string,
@@ -197,6 +220,41 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
               settings.theme,
               (value) => updateSetting('theme', value)
             )}
+            <View style={[styles.settingRow, styles.settingRowVertical, { borderBottomColor: theme.border }]}>
+              <Text style={[styles.settingLabel, { color: theme.text }]}>Color Palette</Text>
+              <View style={styles.paletteContainer}>
+                {PALETTE_OPTIONS.map((option) => {
+                  const paletteColors = palettes[option.value].light;
+                  const isSelected = settings.colorPalette === option.value;
+                  return (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={[
+                        styles.paletteOption,
+                        { borderColor: theme.border },
+                        isSelected && {
+                          borderColor: theme.primary,
+                          backgroundColor: theme.primaryLight,
+                        },
+                      ]}
+                      onPress={() => updateSetting('colorPalette', option.value)}
+                      activeOpacity={0.7}
+                    >
+                      <PalettePreview xColor={paletteColors.xColor} oColor={paletteColors.oColor} />
+                      <Text
+                        style={[
+                          styles.paletteLabel,
+                          { color: theme.textSecondary },
+                          isSelected && { color: theme.primary },
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
           </View>
         </View>
 
@@ -282,5 +340,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     minWidth: 120,
     textAlign: 'right',
+  },
+  paletteContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  paletteOption: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+    gap: 8,
+  },
+  paletteLabel: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

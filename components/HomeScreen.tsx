@@ -58,7 +58,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToSettings,
 }) => {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
 
   const handleModeSelect = (mode: GameModeOption) => {
     if (mode !== selectedMode) {

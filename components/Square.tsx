@@ -42,7 +42,7 @@ interface SquareProps {
 
 export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const pulseAnimRef = useRef<Animated.CompositeAnimation | null>(null);

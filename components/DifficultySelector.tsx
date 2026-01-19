@@ -14,7 +14,7 @@ export function DifficultySelector({
   onDifficultyChange,
 }: DifficultySelectorProps) {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
 
   const renderButton = (
     level: AIDifficulty,

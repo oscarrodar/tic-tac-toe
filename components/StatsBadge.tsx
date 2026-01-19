@@ -10,7 +10,7 @@ interface StatsBadgeProps {
 
 export function StatsBadge({ stats }: StatsBadgeProps) {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
 
   return (
     <View style={styles.container}>

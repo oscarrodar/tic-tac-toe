@@ -78,6 +78,7 @@ export const defaultSettings: Settings = {
   hapticFeedback: true,
   soundEffects: false,
   theme: 'system',
+  colorPalette: 'earth',
   alternateFirstPlayer: false,
   defaultPlayerXName: 'Player 1',
   defaultPlayerOName: 'Player 2',

@@ -84,7 +84,7 @@ export function PlayerNames({
   playerOStats,
 }: PlayerNamesProps) {
   const { settings } = useSettingsContext();
-  const theme = useTheme(settings.theme);
+  const theme = useTheme(settings.theme, settings.colorPalette);
   const [editingX, setEditingX] = useState(false);
   const [editingO, setEditingO] = useState(false);
 

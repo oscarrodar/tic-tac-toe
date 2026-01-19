@@ -64,12 +64,14 @@ export interface GameRecord {
 
 // Settings types
 export type ThemePreference = 'system' | 'light' | 'dark';
+export type ColorPalette = 'earth' | 'sunset' | 'modern';
 
 export interface Settings {
   defaultAIDifficulty: AIDifficulty;
   hapticFeedback: boolean;
   soundEffects: boolean;
   theme: ThemePreference;
+  colorPalette: ColorPalette;
   alternateFirstPlayer: boolean;
   defaultPlayerXName: string;
   defaultPlayerOName: string;
