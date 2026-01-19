@@ -10,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Svg, { Path } from 'react-native-svg';
 import { Board } from './Board';
-import { ModeToggle } from './ModeToggle';
 import { DifficultySelector } from './DifficultySelector';
 import { PlayerNames } from './PlayerNames';
 import { checkWinner } from '../utils/checkWinner';
@@ -59,8 +58,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   const [playerOName, setPlayerOName] = useState(
     initialGameMode === 'ai' ? 'AI' : 'O'
   );
-  const [savedPlayerOName, setSavedPlayerOName] = useState('O');
-
+  
   // Check for winner after each move
   useEffect(() => {
     const result = checkWinner(board);
@@ -111,31 +109,6 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     setWinningLine(null);
     setIsDraw(false);
     AccessibilityInfo.announceForAccessibility('Game reset');
-  };
-
-  const toggleGameMode = (mode: GameMode) => {
-    if (mode !== gameMode) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setBoard(Array(9).fill(null));
-      setCurrentPlayer('X');
-      setWinner(null);
-      setWinningLine(null);
-      setIsDraw(false);
-      setGameMode(mode);
-
-      if (mode === 'ai') {
-        setSavedPlayerOName(playerOName);
-        setPlayerOName('AI');
-      } else {
-        setPlayerOName(savedPlayerOName);
-      }
-
-      const modeName =
-        mode === 'pvp' ? 'Player versus Player' : 'Player versus AI';
-      AccessibilityInfo.announceForAccessibility(
-        `Switched to ${modeName} mode`
-      );
-    }
   };
 
   const handleDifficultyChange = (difficulty: AIDifficulty) => {
@@ -189,8 +162,6 @@ export const GameScreen: React.FC<GameScreenProps> = ({
         />
 
         <View style={styles.controlsSection}>
-          <ModeToggle gameMode={gameMode} onModeChange={toggleGameMode} />
-
           {gameMode === 'ai' && (
             <DifficultySelector
               difficulty={aiDifficulty}
