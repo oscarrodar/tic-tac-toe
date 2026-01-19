@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../theme';
-import { Player, GameMode } from '../types';
+import { useSettingsContext } from '../contexts/SettingsContext';
+import { Player, GameMode, PlayerStats } from '../types';
+import { StatsBadge } from './StatsBadge';
 
 interface PlayerNamesProps {
   playerXName: string;
@@ -13,6 +15,8 @@ interface PlayerNamesProps {
   winner: Player | null;
   isDraw: boolean;
   gameMode: GameMode;
+  playerXStats?: PlayerStats;
+  playerOStats?: PlayerStats;
 }
 
 const XIcon = ({ size = 24, color }: { size?: number; color: string }) => (
@@ -76,8 +80,11 @@ export function PlayerNames({
   winner,
   isDraw,
   gameMode,
+  playerXStats,
+  playerOStats,
 }: PlayerNamesProps) {
-  const theme = useTheme();
+  const { settings } = useSettingsContext();
+  const theme = useTheme(settings.theme);
   const [editingX, setEditingX] = useState(false);
   const [editingO, setEditingO] = useState(false);
 
@@ -124,7 +131,8 @@ export function PlayerNames({
     name: string,
     isEditing: boolean,
     setEditing: (editing: boolean) => void,
-    onNameChange: (name: string) => void
+    onNameChange: (name: string) => void,
+    stats?: PlayerStats
   ) => {
     const iconColor = getTextColor(player);
     const isAIPlayer = player === 'O' && gameMode === 'ai';
@@ -143,6 +151,7 @@ export function PlayerNames({
       <View style={[styles.playerContainer, getPlayerStyle(player)]}>
         <View style={styles.playerContent}>
           {getIcon()}
+          {stats && <StatsBadge stats={stats} />}
           {isEditing && !isAIPlayer ? (
             <TextInput
               style={[
@@ -187,9 +196,9 @@ export function PlayerNames({
 
   return (
     <View style={styles.container}>
-      {renderPlayer('X', playerXName, editingX, setEditingX, onPlayerXNameChange)}
+      {renderPlayer('X', playerXName, editingX, setEditingX, onPlayerXNameChange, playerXStats)}
       <Text style={[styles.vs, { color: theme.textSecondary }]}>VS</Text>
-      {renderPlayer('O', playerOName, editingO, setEditingO, onPlayerONameChange)}
+      {renderPlayer('O', playerOName, editingO, setEditingO, onPlayerONameChange, playerOStats)}
     </View>
   );
 }

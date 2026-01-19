@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Rect, Line, Circle } from 'react-native-svg';
 import { useTheme } from '../theme';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 // This component renders the logo programmatically instead of using assets/adaptive-icon.svg
 // because it uses theme.xColor and theme.oColor, allowing it to adapt to light/dark mode automatically.
@@ -11,7 +12,8 @@ interface AppLogoProps {
 }
 
 export const AppLogo: React.FC<AppLogoProps> = ({ size = 80 }) => {
-  const theme = useTheme();
+  const { settings } = useSettingsContext();
+  const theme = useTheme(settings.theme);
 
   // Based on the 1024x1024 adaptive-icon.svg scaled to size
   // Each cell is roughly 320x320 in the original, with 384 gap between cells

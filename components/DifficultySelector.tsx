@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { AIDifficulty } from '../types';
 import { useTheme } from '../theme';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 interface DifficultySelectorProps {
   difficulty: AIDifficulty;
@@ -12,7 +13,8 @@ export function DifficultySelector({
   difficulty,
   onDifficultyChange,
 }: DifficultySelectorProps) {
-  const theme = useTheme();
+  const { settings } = useSettingsContext();
+  const theme = useTheme(settings.theme);
 
   const renderButton = (
     level: AIDifficulty,

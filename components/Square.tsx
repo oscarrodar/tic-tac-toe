@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import { Player } from '../types';
 import { useTheme } from '../theme';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 // SVG Components
 const XIcon = ({ size = 60, color = '#ef4444' }) => (
@@ -40,7 +41,8 @@ interface SquareProps {
 }
 
 export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
-  const theme = useTheme();
+  const { settings } = useSettingsContext();
+  const theme = useTheme(settings.theme);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const pulseAnimRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -49,7 +51,9 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
   useEffect(() => {
     if (value) {
       // Trigger haptic feedback
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (settings.hapticFeedback) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
 
       // Start from 0 and spring to 1
       scaleAnim.setValue(0);
@@ -63,13 +67,15 @@ export function Square({ value, onPress, isWinning, disabled }: SquareProps) {
       // Reset to normal size when cleared
       scaleAnim.setValue(1);
     }
-  }, [value]);
+  }, [value, settings.hapticFeedback]);
 
   // Pulse animation for winning X or O
   useEffect(() => {
     if (isWinning && value) {
       // Trigger success haptic for winning
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (settings.hapticFeedback) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
 
       // Pulse the text when this square is part of winning line
       pulseAnimRef.current = Animated.loop(

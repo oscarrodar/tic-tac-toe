@@ -13,7 +13,7 @@ export type GameMode = 'pvp' | 'ai';
 export type GameModeOption = 'ai' | 'pvp' | 'online';
 
 // Screen navigation
-export type Screen = 'home' | 'game';
+export type Screen = 'home' | 'game' | 'statistics' | 'settings';
 
 // AI difficulty levels
 export type AIDifficulty = 'easy' | 'medium' | 'hard';
@@ -26,4 +26,52 @@ export interface WinnerResult {
   winner: Player | null;
   winningLine: WinningLine;
   isDraw: boolean;
+}
+
+// Statistics types
+export interface PlayerStats {
+  wins: number;
+  losses: number;
+  draws: number;
+}
+
+export interface GameStats {
+  pvp: {
+    playerX: PlayerStats;
+    playerO: PlayerStats;
+  };
+  ai: {
+    easy: PlayerStats;
+    medium: PlayerStats;
+    hard: PlayerStats;
+  };
+  streaks: {
+    current: number;
+    best: number;
+  };
+  totalGames: number;
+}
+
+export interface GameRecord {
+  id: string;
+  timestamp: number;
+  mode: GameMode;
+  difficulty?: AIDifficulty;
+  winner: Player | 'draw';
+  playerXName: string;
+  playerOName: string;
+}
+
+// Settings types
+export type ThemePreference = 'system' | 'light' | 'dark';
+
+export interface Settings {
+  defaultAIDifficulty: AIDifficulty;
+  hapticFeedback: boolean;
+  soundEffects: boolean;
+  theme: ThemePreference;
+  alternateFirstPlayer: boolean;
+  defaultPlayerXName: string;
+  defaultPlayerOName: string;
+  confirmReset: boolean;
 }

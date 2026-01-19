@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '../theme';
+import { useSettingsContext } from '../contexts/SettingsContext';
 
 interface GameModeCardProps {
   title: string;
@@ -77,7 +78,8 @@ export const GameModeCard: React.FC<GameModeCardProps> = ({
   disabled = false,
   onPress,
 }) => {
-  const theme = useTheme();
+  const { settings } = useSettingsContext();
+  const theme = useTheme(settings.theme);
   const iconColor = disabled ? theme.textSecondary : theme.textSecondary;
 
   const renderIcon = () => {

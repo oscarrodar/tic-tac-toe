@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   AccessibilityInfo,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -20,12 +21,18 @@ import {
   GameMode,
   WinningLine,
   AIDifficulty,
+  PlayerStats,
+  Settings,
 } from '../types';
 import { useTheme } from '../theme';
 
 interface GameScreenProps {
   initialGameMode: GameMode;
   onBackToHome: () => void;
+  playerXStats?: PlayerStats;
+  playerOStats?: PlayerStats;
+  onGameEnd?: (winner: Player | 'draw', difficulty?: AIDifficulty) => void;
+  settings?: Settings;
 }
 
 const BackIcon: React.FC<{ color: string }> = ({ color }) => (
@@ -43,22 +50,31 @@ const BackIcon: React.FC<{ color: string }> = ({ color }) => (
 export const GameScreen: React.FC<GameScreenProps> = ({
   initialGameMode,
   onBackToHome,
+  playerXStats,
+  playerOStats,
+  onGameEnd,
+  settings,
 }) => {
-  const theme = useTheme();
+  const theme = useTheme(settings?.theme);
 
   // Game state
   const [board, setBoard] = useState<BoardType>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
   const [gameMode, setGameMode] = useState<GameMode>(initialGameMode);
-  const [aiDifficulty, setAIDifficulty] = useState<AIDifficulty>('medium');
+  const [aiDifficulty, setAIDifficulty] = useState<AIDifficulty>(
+    settings?.defaultAIDifficulty ?? 'medium'
+  );
   const [winner, setWinner] = useState<Player | null>(null);
   const [winningLine, setWinningLine] = useState<WinningLine>(null);
   const [isDraw, setIsDraw] = useState(false);
-  const [playerXName, setPlayerXName] = useState('X');
-  const [playerOName, setPlayerOName] = useState(
-    initialGameMode === 'ai' ? 'AI' : 'O'
+  const [playerXName, setPlayerXName] = useState(
+    settings?.defaultPlayerXName || 'Player 1'
   );
-  
+  const [playerOName, setPlayerOName] = useState(
+    initialGameMode === 'ai' ? 'AI' : (settings?.defaultPlayerOName || 'Player 2')
+  );
+  const gameRecordedRef = useRef(false);
+
   // Check for winner after each move
   useEffect(() => {
     const result = checkWinner(board);
@@ -74,7 +90,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     } else if (result.isDraw) {
       AccessibilityInfo.announceForAccessibility('Game is a draw');
     }
-  }, [board]);
+
+    // Record game result
+    if ((result.winner || result.isDraw) && !gameRecordedRef.current && onGameEnd) {
+      gameRecordedRef.current = true;
+      const gameResult = result.winner || 'draw';
+      onGameEnd(gameResult, gameMode === 'ai' ? aiDifficulty : undefined);
+    }
+  }, [board, onGameEnd, gameMode, aiDifficulty]);
 
   // AI move trigger
   useEffect(() => {
@@ -101,18 +124,38 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
   };
 
-  const handleReset = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  const performReset = () => {
+    if (settings?.hapticFeedback !== false) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
     setBoard(Array(9).fill(null));
     setCurrentPlayer('X');
     setWinner(null);
     setWinningLine(null);
     setIsDraw(false);
+    gameRecordedRef.current = false;
     AccessibilityInfo.announceForAccessibility('Game reset');
   };
 
+  const handleReset = () => {
+    if (settings?.confirmReset !== false) {
+      Alert.alert(
+        'Reset Game',
+        'Are you sure you want to reset the game?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Reset', style: 'destructive', onPress: performReset },
+        ]
+      );
+    } else {
+      performReset();
+    }
+  };
+
   const handleDifficultyChange = (difficulty: AIDifficulty) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (settings?.hapticFeedback !== false) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     setAIDifficulty(difficulty);
     AccessibilityInfo.announceForAccessibility(
       `AI difficulty set to ${difficulty}`
@@ -120,7 +163,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   };
 
   const handleBackPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (settings?.hapticFeedback !== false) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     onBackToHome();
   };
 
@@ -152,6 +197,8 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           winner={winner}
           isDraw={isDraw}
           gameMode={gameMode}
+          playerXStats={playerXStats}
+          playerOStats={playerOStats}
         />
 
         <Board

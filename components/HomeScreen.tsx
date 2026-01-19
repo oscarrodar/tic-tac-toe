@@ -11,12 +11,15 @@ import * as Haptics from 'expo-haptics';
 import { AppLogo } from './AppLogo';
 import { GameModeCard } from './GameModeCard';
 import { useTheme } from '../theme';
+import { useSettingsContext } from '../contexts/SettingsContext';
 import { GameModeOption } from '../types';
 
 interface HomeScreenProps {
   selectedMode: GameModeOption;
   onModeSelect: (mode: GameModeOption) => void;
   onStartGame: () => void;
+  onNavigateToStats?: () => void;
+  onNavigateToSettings?: () => void;
 }
 
 const GAME_MODES: Array<{
@@ -51,18 +54,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   selectedMode,
   onModeSelect,
   onStartGame,
+  onNavigateToStats,
+  onNavigateToSettings,
 }) => {
-  const theme = useTheme();
+  const { settings } = useSettingsContext();
+  const theme = useTheme(settings.theme);
 
   const handleModeSelect = (mode: GameModeOption) => {
     if (mode !== selectedMode) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (settings.hapticFeedback) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
       onModeSelect(mode);
     }
   };
 
   const handleStartGame = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (settings.hapticFeedback) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
     onStartGame();
   };
 
@@ -126,7 +136,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <View style={styles.links}>
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={onNavigateToStats}
               accessibilityRole="button"
               accessibilityLabel="Statistics"
               accessibilityHint="View your game statistics"
@@ -137,7 +147,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={onNavigateToSettings}
               accessibilityRole="button"
               accessibilityLabel="Settings"
               accessibilityHint="Open settings"
