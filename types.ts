@@ -9,6 +9,12 @@ export type Board = (Player | null)[];
 // Game mode: Player vs Player or Player vs AI
 export type GameMode = 'pvp' | 'ai';
 
+// Extended game mode options (includes online for future)
+export type GameModeOption = 'ai' | 'pvp' | 'online';
+
+// Screen navigation
+export type Screen = 'home' | 'game';
+
 // AI difficulty levels
 export type AIDifficulty = 'easy' | 'medium' | 'hard';
 
