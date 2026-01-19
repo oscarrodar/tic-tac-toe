@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HomeScreen } from './components/HomeScreen';
 import { GameScreen } from './components/GameScreen';
 import { Screen, GameModeOption, GameMode } from './types';
@@ -22,15 +23,19 @@ export default function App() {
 
   if (currentScreen === 'home') {
     return (
-      <HomeScreen
-        selectedMode={selectedMode}
-        onModeSelect={setSelectedMode}
-        onStartGame={handleStartGame}
-      />
+      <SafeAreaProvider>
+        <HomeScreen
+          selectedMode={selectedMode}
+          onModeSelect={setSelectedMode}
+          onStartGame={handleStartGame}
+        />
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <GameScreen initialGameMode={gameMode} onBackToHome={handleBackToHome} />
+    <SafeAreaProvider>
+      <GameScreen initialGameMode={gameMode} onBackToHome={handleBackToHome} />
+    </SafeAreaProvider>
   );
 }
